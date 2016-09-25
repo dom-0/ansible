@@ -1,0 +1,68 @@
+---
+- hosts: webservers
+  become: yes
+  name: Bunch of webservers
+
+  
+
+  vars:
+    IPAdress: 195.169.89.252
+    PortNumber: 80
+    DocumentRoot: /var/www/website
+    ServerAdmin: arnab.sen@iisg.nl
+    ServerName: website.iisg.nl
+
+  vars_prompt:
+  - name: username
+    prompt: What is your name?
+
+
+  tasks:
+  - name: Ensure that Apache2 is installed
+    apt: pkg=apache2 state=present 
+    when: ansible_os_family == "Debian"
+
+  - name: Ensure that Apache2 is installed in Redhat
+    yum: name=httpd state=present
+    when: ansible_os_family == "Redhat"
+
+  - name: Deploy Apache2 ports.conf
+    template: src=templates/ports.j2 dest=/etc/apache2/ports.conf
+
+  - name: Deploy configuration file
+    template: src=templates/website.j2 dest=/etc/apache2/sites-available/website.conf
+    notify:
+      - Restart Apache
+
+  - name: Copy Site Files
+    template: src=templates/index.j2 dest={{ DocumentRoot }}/index.html  
+
+  - name: Enable Site
+    command: /usr/sbin/a2ensite website.conf
+
+  - name: Start Apache2 services
+    service: name=apache2 enabled=yes state=started
+
+  handlers:
+    - name: Restart Apache
+      service: name=apache2 state=restarted
+
+
+- hosts: dbservers
+  become: yes
+
+  tasks:
+  - name: Ensure MysqlServer is installed
+    apt: pkg=mysql-server state=present
+    when: ansible_os_family == "Debian"
+
+  - name: Ensure Mysql is started
+    service: name=mysql enabled=yes state=started
+
+- hosts: webservers:dbservers
+  become: yes
+
+  tasks:
+  - name: Stop IPtables now
+    service: name=ufw state=stopped
+ 
