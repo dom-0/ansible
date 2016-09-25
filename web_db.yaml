@@ -8,9 +8,9 @@
   vars:
     IPAdress: 195.169.89.252
     PortNumber: 80
-    DocumentRoot: /var/www/website
     ServerAdmin: arnab.sen@iisg.nl
-    ServerName: website.iisg.nl
+    ServerName: website
+    DocumentRoot: /var/www/{{ ServerName }}
 
   vars_prompt:
   - name: username
@@ -27,18 +27,18 @@
     when: ansible_os_family == "Redhat"
 
   - name: Deploy Apache2 ports.conf
-    template: src=templates/ports.j2 dest=/etc/apache2/ports.conf
+    template: src=templates/{{ ServerName }}_ports.j2 dest=/etc/apache2/ports.conf
 
   - name: Deploy configuration file
-    template: src=templates/website.j2 dest=/etc/apache2/sites-available/website.conf
+    template: src=templates/{{ ServerName }}.j2 dest=/etc/apache2/sites-available/{{ ServerName }}.conf
     notify:
       - Restart Apache
 
   - name: Copy Site Files
-    template: src=templates/index.j2 dest={{ DocumentRoot }}/index.html  
+    template: src=templates/{{ ServerName }}_index.j2 dest={{ DocumentRoot }}/index.html  
 
   - name: Enable Site
-    command: /usr/sbin/a2ensite website.conf
+    command: /usr/sbin/a2ensite {{ ServerName }}.conf
 
   - name: Start Apache2 services
     service: name=apache2 enabled=yes state=started
