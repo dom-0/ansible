@@ -5,13 +5,6 @@
 
   
 
-  vars:
-    IPAdress: 195.169.89.252
-    PortNumber: 80
-    ServerAdmin: arnab.sen@iisg.nl
-    ServerName: website
-    DocumentRoot: /var/www/{{ ServerName }}
-
   vars_prompt:
   - name: username
     prompt: What is your name?

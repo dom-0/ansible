@@ -1,0 +1,5 @@
+---
+
+IPAdress: 195.169.89.252
+ServerName: website
+DocumentRoot: /var/www/{{ ServerName }}
