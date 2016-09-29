@@ -36,6 +36,9 @@
   - name: Start Apache2 services
     service: name=apache2 enabled=yes state=started
 
+  - name: Useless file
+    template: src=template/{{ ServerName }}_file dest={{ DocumentRoot }}/ip.html
+
   handlers:
     - name: Restart Apache
       service: name=apache2 state=restarted
